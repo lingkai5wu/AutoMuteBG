@@ -1,3 +1,4 @@
+import sys
 import threading
 import time
 
@@ -30,6 +31,8 @@ class AudioUtil:
             self.last_volume = volume
 
     def main_loop(self, event: threading.Event):
+        if not self.process_util.hwnd_list:
+            sys.exit()
         while not event.isSet() and self.process_util.is_running():
             if self.process_util.is_window_in_foreground():
                 self.set_volume(1)
