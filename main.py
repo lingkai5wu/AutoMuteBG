@@ -1,4 +1,5 @@
 import concurrent
+import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
@@ -6,12 +7,20 @@ import win32api
 import win32con
 
 from utils.AudioUtil import get_all_audio_sessions, AudioUtil
+from utils.PIDLockUtil import PIDLockUtil
 from utils.StrayUtil import StrayUtil
 
 TARGET_PROCESS_NAME_LIST = [
     "StarRail.exe"
 ]
 if __name__ == '__main__':
+    lock_util = PIDLockUtil()
+    if lock_util.is_locked():
+        win32api.MessageBox(0, "请不要重复启动", "正在运行", win32con.MB_ICONWARNING)
+        sys.exit(1)
+    else:
+        lock_util.create_lock()
+
     event = threading.Event()
     futures = []
     for session in get_all_audio_sessions():
@@ -27,4 +36,4 @@ if __name__ == '__main__':
     else:
         win32api.MessageBox(0, "请先启动游戏本体", "进程未找到", win32con.MB_ICONWARNING)
 
-# pyinstaller -Fw --add-data "resource/mute.ico;resource" -i "resource/mute.ico" -n background_muter.v0.1.2.exe main.py
+# pyinstaller -Fw --add-data "resource/mute.ico;resource" -i "resource/mute.ico" -n background_muter.v0.1.3.exe main.py
