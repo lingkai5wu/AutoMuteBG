@@ -7,10 +7,10 @@
 
 ## 使用方法
 
-1. 在[Gitee](https://gitee.com/lingkai5wu/AutoMuteBG/releases/latest)或[GitHub](https://github.com/lingkai5wu/AutoMuteBG/releases/latest)的Releases下载最近版本的`background_muter.exe`，也可直接运行`.py`文件
+1. 前往[Gitee Releases](https://gitee.com/lingkai5wu/AutoMuteBG/releases/latest)或[GitHub Releases](https://github.com/lingkai5wu/AutoMuteBG/releases/latest)下载最近版本的`background_muter.exe`
 2. 打开游戏本体
-3. 打开`background_muter.exe`
-4. 关闭游戏后会自动退出本程序，你也可以从状态栏中手动退出。
+3. 运行`background_muter.exe`
+4. 关闭游戏后会自动退出本程序，也可以从状态栏中手动退出。
 
 ### 已知问题
 
