@@ -3,11 +3,13 @@
 
 程序的原理为调用系统的音量合成器，仅Windows可用。
 
-开源地址：[Gitee](https://gitee.com/lingkai5wu/AutoMuteBG) | [GitHub](https://github.com/lingkai5wu/AutoMuteBG)
+开源地址：[GitHub](https://github.com/lingkai5wu/AutoMuteBG) | [Gitee](https://gitee.com/lingkai5wu/AutoMuteBG)，主要使用前者。
 
 ## 使用方法
 
-1. 前往[Gitee Releases](https://gitee.com/lingkai5wu/AutoMuteBG/releases/latest)或[GitHub Releases](https://github.com/lingkai5wu/AutoMuteBG/releases/latest)下载最近版本的`background_muter.exe`
+1. 下载最近版本的`background_muter.exe`
+   - **国内访问：[Gitee Releases](https://gitee.com/lingkai5wu/AutoMuteBG/releases/latest)**
+   - [GitHub Releases](https://github.com/lingkai5wu/AutoMuteBG/releases/latest)
 2. 打开游戏本体
 3. 运行`background_muter.exe`
 4. 关闭游戏后会自动退出本程序，也可以从状态栏中手动退出。
