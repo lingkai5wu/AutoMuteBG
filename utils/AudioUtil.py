@@ -33,11 +33,18 @@ class AudioUtil:
     def main_loop(self, event: threading.Event):
         if not self.process_util.hwnd_list:
             sys.exit()
+        volume_status = 0
         while not event.isSet() and self.process_util.is_running():
             if self.process_util.is_window_in_foreground():
-                self.set_volume(1)
+                if volume_status == 0:
+                    # 声音渐强，每次增加0.1，0.5s完成
+                    for volume in range(0, 11):
+                        self.set_volume(volume / 10)
+                        time.sleep(0.05)
+                    volume_status = 1
             else:
                 self.set_volume(self.BG_VOLUME)
+                volume_status = 0
             time.sleep(self.LOOP_INTERVAL)
         else:
             self.set_volume(1)
