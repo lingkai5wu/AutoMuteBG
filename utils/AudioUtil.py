@@ -37,6 +37,15 @@ class AudioUtil:
         self.easing_thread = None
         self.easing_event = threading.Event()
 
+        self._check_fg_volume()
+
+    def _check_fg_volume(self):
+        if self.config["fg_volume"] == "auto":
+            self.config["fg_volume"] = self.session.SimpleAudioVolume.GetMasterVolume()
+            # 意外退出的情况
+            if self.config["fg_volume"] == self.config["bg_volume"]:
+                self.config["fg_volume"] = 1
+
     def set_volume(self, volume: float):
         def no_easing(cur_volume=volume):
             self.session.SimpleAudioVolume.SetMasterVolume(cur_volume, None)
