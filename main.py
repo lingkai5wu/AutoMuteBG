@@ -36,12 +36,12 @@ def main():
         concurrent.futures.wait(futures)
         stray_util.exit_app()
     else:
-        win32api.MessageBox(0, "请先启动设定的进程", "进程未找到", win32con.MB_ICONWARNING)
+        win32api.MessageBox(0, "请先启动目标进程", "进程未找到", win32con.MB_ICONWARNING)
 
 
 if __name__ == '__main__':
     check_lock()
     main()
 
-import pywintypes
-# pyinstaller -Fw --add-data "resource/mute.ico;resource" -i "resource/mute.ico" -n background_muter.v0.1.5.exe main.py
+# import pywintypes
+# pyinstaller -Fw --add-data "resource/;resource/" -i "resource/mute.ico" -n background_muter.v0.1.7.exe main.py
