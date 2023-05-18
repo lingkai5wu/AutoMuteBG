@@ -1,0 +1,10 @@
+default:
+  loop_interval: 0.2
+  fg_volume: 1
+  bg_volume: 0
+  easing:
+    duration: 0.5
+    steps: 50
+
+processes:
+  StarRail.exe: null
