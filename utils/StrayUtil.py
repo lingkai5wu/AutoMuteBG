@@ -5,6 +5,8 @@ import pkg_resources
 import pystray
 from PIL import Image
 
+from utils.AudioUtil import save_process_name_to_txt
+
 
 def on_icon_ready(icon):
     icon.visible = True
@@ -22,6 +24,7 @@ class StrayUtil:
         name = "后台静音"
         menu = pystray.Menu(
             pystray.MenuItem("开源地址", open_site),
+            pystray.MenuItem("查看进程名", save_process_name_to_txt),
             pystray.MenuItem("退出", self.exit_app)
         )
         icon = Image.open(pkg_resources.resource_filename(__name__, "../resource/mute.ico"))
