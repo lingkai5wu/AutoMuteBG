@@ -1,4 +1,3 @@
-import atexit
 import os
 import tempfile
 
@@ -18,13 +17,9 @@ class PIDLockUtil:
                     return psutil.pid_exists(int(pid))
         return False
 
-    def exit_handler(self):
-        self.remove_lock()
-
     def create_lock(self):
         with open(self.lockfile, 'w') as f:
             f.write(str(os.getpid()))
-        atexit.register(self.exit_handler)
         self.logger.info("Lock file created.")
 
     def remove_lock(self):

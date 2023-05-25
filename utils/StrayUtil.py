@@ -7,7 +7,7 @@ import pystray
 from PIL import Image
 
 from utils.ConfigUtil import ConfigUtil
-from utils.LoggerUtil import LOG_PATH
+from utils.LoggerUtil import get_log_dir
 
 
 def _open_site():
@@ -37,15 +37,15 @@ class StrayUtil:
             icon.visible = True
             if self.stray_setup_msg:
                 icon.notify("启动成功")
-            threading.current_thread().setName("StrayCallbackThread")
-            self.logger.info("Stray is running")
+            threading.current_thread().setName("StrayRunCallbackThread")
+            self.logger.info("Stray is running.")
 
         self.event = event
         self.logger.info("Starting stray.")
         threading.Thread(target=self.icon.run, args=(on_icon_ready,), name="StrayThread").start()
 
     def _open_log_folder(self):
-        log_path = pkg_resources.resource_filename(__name__, LOG_PATH)
+        log_path = get_log_dir()
         try:
             os.startfile(log_path)
         except FileNotFoundError:
@@ -55,7 +55,7 @@ class StrayUtil:
         config_util = ConfigUtil()
         self.run_util.start_audio_control_threads(config_util)
         self.icon.notify("重新加载成功")
-        self.logger.info("Reloaded successfully")
+        self.logger.info("Reloaded successfully.")
 
     def exit_app(self):
         self.logger.info("Exiting StrayUtil.")

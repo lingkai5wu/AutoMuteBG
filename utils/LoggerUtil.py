@@ -1,10 +1,21 @@
 import logging
 import os
+import sys
 from datetime import datetime
 
-import pkg_resources
-
 LOG_PATH = "../logs/"
+
+
+def get_log_dir():
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable
+        exe_dir = os.path.dirname(sys.executable)
+        return os.path.join(exe_dir, 'logs')
+    else:
+        # Running as script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        main_dir = os.path.dirname(script_dir)
+        return os.path.join(main_dir, 'logs')
 
 
 class LoggerUtil:
@@ -12,6 +23,7 @@ class LoggerUtil:
         self.log_dir = None
         self.max_log_files = max_log_files
 
+        self.log_dir = get_log_dir()
         self.logger = self._setup_logging()
         self._delete_old_log_files()
 
@@ -26,7 +38,6 @@ class LoggerUtil:
         logger.addHandler(console_handler)
 
         if self.max_log_files > 0:
-            self.log_dir = pkg_resources.resource_filename(__name__, LOG_PATH)
             os.makedirs(self.log_dir, exist_ok=True)
             log_file = os.path.join(self.log_dir, datetime.now().strftime("%Y%m%d%H%M%S") + ".log")
             file_handler = logging.FileHandler(log_file)
