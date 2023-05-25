@@ -28,7 +28,7 @@ def main():
     run_util = RunUtil(config_util, event, logger)
     run_util.start_audio_control_threads()
 
-    stray_util = StrayUtil(run_util, logger)
+    stray_util = StrayUtil(run_util, config_util.config["setting"]["stray_setup_msg"], logger)
     stray_util.run_detached(event)
 
     if config_util.config["setting"]["bg_run"]:

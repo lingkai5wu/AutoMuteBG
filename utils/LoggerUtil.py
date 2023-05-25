@@ -7,11 +7,6 @@ import pkg_resources
 LOG_PATH = "../logs/"
 
 
-def open_log_folder():
-    log_path = pkg_resources.resource_filename(__name__, LOG_PATH)
-    os.startfile(log_path)
-
-
 class LoggerUtil:
     def __init__(self, max_log_files: int):
         self.log_dir = None
