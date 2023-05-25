@@ -78,7 +78,7 @@ class AudioUtil:
                 self.easing_thread = threading.Thread(target=easing)
                 self.easing_thread.start()
 
-    def main_loop(self, event: threading.Event):
+    def loop(self, event: threading.Event, thread_util):
         if not self.process_util.hwnd_list:
             sys.exit()
         while not event.isSet() and self.process_util.is_running():
@@ -90,3 +90,4 @@ class AudioUtil:
         else:
             self.set_volume(self.config["fg_volume"])
             self.easing_thread.join()
+            thread_util.remove_thread(self.session.Process.name())

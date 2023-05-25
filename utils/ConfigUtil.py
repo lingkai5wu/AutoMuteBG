@@ -15,27 +15,34 @@ class ConfigUtil:
         self._read()
 
     def _read(self):
-        with open(self.default_config_path, "r", encoding="utf-8") as f:
-            self.default_config = yaml.safe_load(f)
         if not os.path.exists(self.config_file):
-            self._reset()
+            shutil.copy2(self.default_config_path, self.config_file)
         with open(self.config_file, "r", encoding="utf-8") as f:
             self.config = yaml.safe_load(f)
-            self._validate_consistency(self.config["default"], self.default_config["default"])
+        self._verify()
 
-    def _validate_consistency(self, target_config, reference_config):
+    def _verify(self):
+        with open(self.default_config_path, "r", encoding="utf-8") as f:
+            self.default_config = yaml.safe_load(f)
+        try:
+            self._verify_consistency(self.config["setting"], self.default_config["setting"])
+            self._verify_consistency(self.config["default"], self.default_config["default"])
+        except KeyError:
+            self._reset()
+
+    def _verify_consistency(self, target_config, reference_config):
         for key in reference_config:
             if key not in target_config:
                 self._reset()
-                raise CustomException(f"默认配置中缺少 {key}，已重置 {self.config_file}，请修改配置文件后重新运行程序")
             if isinstance(reference_config[key], dict) and isinstance(target_config[key], dict):
-                self._validate_consistency(target_config[key], reference_config[key])
+                self._verify_consistency(target_config[key], reference_config[key])
 
     def _reset(self):
         if os.path.exists(self.config_file):
             shutil.move(self.config_file, "backup_" + self.config_file)
         # 复制default_config.yaml到当前目录
         shutil.copy2(self.default_config_path, self.config_file)
+        raise CustomException(f"配置文件验证不通过，已重置 {self.config_file}，请修改后重新运行程序")
 
     def get_by_process(self, process_name):
         def merge_configs(parent_config, child_config):
