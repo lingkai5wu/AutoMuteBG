@@ -40,14 +40,14 @@ class ConfigUtil:
     def _reset(self):
         if os.path.exists(self.config_file):
             shutil.move(self.config_file, "backup_" + self.config_file)
-        # 复制default_config.yaml到当前目录
         shutil.copy2(self.default_config_path, self.config_file)
-        raise CustomException(f"配置文件验证不通过，已重置 {self.config_file}，请修改后重新运行程序")
+        raise CustomException(f"Configuration file verification failed. {self.config_file} has been reset. "
+                              f"Please modify and run the program again.")
 
     def get_by_process(self, process_name):
         def merge_configs(parent_config, child_config):
             if not set(child_config.keys()).issubset(set(parent_config.keys())):
-                raise CustomException(f"{process_name} 进程配置错误", child_config)
+                raise CustomException(f"Process configuration error for {process_name}.", child_config)
             merged = parent_config.copy()
             for key, value in child_config.items():
                 if key in merged and isinstance(value, dict) and isinstance(merged[key], dict):
@@ -65,8 +65,3 @@ class ConfigUtil:
 
 class CustomException(Exception):
     pass
-
-
-if __name__ == '__main__':
-    config_util = ConfigUtil()
-    print(config_util.get_by_process("StarRail.exe"))
