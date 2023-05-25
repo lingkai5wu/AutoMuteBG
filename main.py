@@ -1,5 +1,6 @@
 import sys
 import threading
+import time
 
 import win32api
 import win32con
@@ -8,7 +9,6 @@ from utils.ConfigUtil import ConfigUtil
 from utils.PIDLockUtil import PIDLockUtil
 from utils.RunUtil import RunUtil
 from utils.StrayUtil import StrayUtil
-from utils.ThreadUtil import ThreadUtil
 
 
 def check_lock():
@@ -23,8 +23,7 @@ def check_lock():
 def main():
     config_util = ConfigUtil()
     event = threading.Event()
-    thread_util = ThreadUtil()
-    run_util = RunUtil(config_util, event, thread_util)
+    run_util = RunUtil(config_util, event)
     run_util.start_audio_control_threads()
 
     stray_util = StrayUtil(run_util)
@@ -36,11 +35,10 @@ def main():
         else:
             event.wait()
     else:
-        if thread_util.thread_dict:
-            thread_util.wait_threads()
+        while threading.enumerate():
+            time.sleep(1)
         else:
             win32api.MessageBox(0, "请先启动目标进程", "进程未找到", win32con.MB_ICONWARNING)
-    stray_util.exit_app()
 
 
 if __name__ == '__main__':

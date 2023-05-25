@@ -23,7 +23,7 @@
 
 通过修改配置文件可以添加多个需要被本程序自动调整的进程，并对每个进程的处理参数进行高度自定义。
 
-首次运行程序会在同目录下创建配置文件`config.yaml`，该文件复制自[default_config.yaml](resource/default_config.yaml)，以下是配置项说明。
+首次运行程序会在同目录下创建配置文件`config.yaml`，该文件复制自[default_config.yaml](resource/default_config.yaml)。
 
 #### 配置说明
 
@@ -31,7 +31,9 @@
 
 - `setting`（程序设置）：本程序运行的一些设置项
     - `bg_run`（后台运行）：设置程序是否后台运行，取值范围为`true`或`false`等`yaml`允许的布尔值
-    - `bg_scan_interval`（后台扫描间隔）：设置程序在后台检测目标进程是否启动的时间间隔，单位为秒，仅当后台运行时可用。或取`null`，表示不扫描，但仍可从右键菜单手动重载
+    - `bg_scan_interval`（后台扫描间隔）：
+      设置程序在后台检测目标进程是否启动的时间间隔，单位为秒，仅当后台运行时可用。
+      或取`null`表示不扫描，但仍可从右键菜单手动重载
 
 - `default`（默认配置）：所有进程的配置将使用以下缺省值
     - `loop_interval`（循环检测间隔）：指定程序循环检测前台窗口的时间间隔，单位为秒
@@ -71,6 +73,6 @@ processes:
 
 ### 运行截图
 
-![image-20230524231345998](C:\Users\lingk\AppData\Roaming\Typora\typora-user-images\image-20230524231345998.png)
+![image-20230506110911354](README.assets/image-20230506110911354.png)
 
 ![image-20230506111158848](README.assets/image-20230506111158848.png)
