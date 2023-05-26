@@ -6,6 +6,7 @@ import pkg_resources
 import pystray
 from PIL import Image
 
+from utils.AudioUtil import save_process_name_to_txt
 from utils.ConfigUtil import ConfigUtil
 from utils.LoggerUtil import get_log_dir
 
@@ -25,6 +26,7 @@ class StrayUtil:
         menu = pystray.Menu(
             pystray.MenuItem("开源地址", _open_site),
             pystray.MenuItem("日志文件", self._open_log_folder),
+            pystray.MenuItem("查看进程", save_process_name_to_txt),
             pystray.MenuItem("重新加载", self._reload),
             pystray.MenuItem("退出", self.exit_app)
         )

@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 
@@ -11,6 +12,16 @@ def get_all_audio_sessions():
     sessions = AudioUtilities.GetAllSessions()
     res = [session for session in sessions if session.Process is not None]
     return res
+
+
+def save_process_name_to_txt():
+    filename = "process_name.txt"
+    sessions = get_all_audio_sessions()
+    with open(filename, 'w') as file:
+        for session in sessions:
+            process_name = session.Process.name()
+            file.write(f"{process_name}\n")
+    os.startfile(filename)
 
 
 # 两个缓动公式
