@@ -4,19 +4,25 @@ import time
 import win32api
 import win32con
 import win32gui
+from injector import singleton, inject
 
+from utils.LoggerUtil import LoggerUtil
 from utils.PIDLockUtil import PIDLockUtil
 from utils.RunUtil import RunUtil
 from utils.StrayUtil import StrayUtil
 
 
+@singleton
 class ShutdownUtil:
-    def __init__(self, stray_util: StrayUtil, lock_util: PIDLockUtil, run_util: RunUtil, event, logger):
+    @inject
+    def __init__(self, stray_util: StrayUtil, lock_util: PIDLockUtil, run_util: RunUtil,
+                 event: threading.Event, logger_util: LoggerUtil):
         self.stray_util = stray_util
         self.lock_util = lock_util
         self.run_util = run_util
         self.event = event
-        self.logger = logger
+        self.logger = logger_util.logger
+
         self.hwnd = None
 
     def on_win32_wm_event(self, h_wnd, u_msg, w_param, l_param):

@@ -5,6 +5,7 @@ import time
 from pycaw.utils import AudioSession, AudioUtilities
 
 from utils.ConfigUtil import ConfigUtil
+from utils.LoggerUtil import LoggerUtil
 from utils.ProcessUtil import ProcessUtil
 
 
@@ -37,17 +38,24 @@ def _ease_out_cubic(t, b, c, d):
 
 
 class AudioUtil:
-    def __init__(self, session: AudioSession, config_util: ConfigUtil, event, logger):
-        self.last_target_volume = None
-        self.last_volume = None
+    def __init__(self, session: AudioSession, config_util: ConfigUtil,
+                 event: threading.Event, logger: LoggerUtil.logger):
+        # 手动设置
         self.session = session
-        self.process_util = ProcessUtil(session.Process)
+
+        # 自动注入
         self.config = config_util.get_by_process(session.Process.name())
         self.event = event
-        self.easing_thread = None
-        self.stop_easing_thread = False
         self.logger = logger
 
+        # 内部定义
+        self.process_util = ProcessUtil(session.Process)
+        self.last_target_volume = None
+        self.last_volume = None
+        self.easing_thread = None
+        self.stop_easing_thread = False
+
+        # 运行函数
         self._check_fg_volume()
 
     def _check_fg_volume(self):

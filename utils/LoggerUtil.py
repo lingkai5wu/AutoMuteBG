@@ -3,6 +3,10 @@ import os
 import sys
 from datetime import datetime
 
+from injector import singleton, inject
+
+from utils.ConfigUtil import ConfigUtil
+
 LOG_PATH = "../logs/"
 
 
@@ -18,13 +22,17 @@ def get_log_dir():
         return os.path.join(main_dir, 'logs')
 
 
+@singleton
 class LoggerUtil:
-    def __init__(self, max_log_files: int):
-        self.log_dir = None
-        self.max_log_files = max_log_files
+    logger = None
+
+    @inject
+    def __init__(self, config_util: ConfigUtil):
+        self.max_log_files = config_util.config["setting"]["max_log_files"]
 
         self.log_dir = get_log_dir()
         self.logger = self._setup_logging()
+
         self._delete_old_log_files()
 
     def _setup_logging(self):

@@ -24,6 +24,5 @@ class ProcessUtil:
 
         hwnd_list = []
         win32gui.EnumWindows(callback, hwnd_list)
-        print(self.process.name(), hwnd_list)
 
         return hwnd_list

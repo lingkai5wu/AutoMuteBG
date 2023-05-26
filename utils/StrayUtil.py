@@ -5,22 +5,27 @@ import webbrowser
 import pkg_resources
 import pystray
 from PIL import Image
+from injector import singleton, inject
 
 from utils.AudioUtil import save_process_name_to_txt
 from utils.ConfigUtil import ConfigUtil
-from utils.LoggerUtil import get_log_dir
+from utils.LoggerUtil import get_log_dir, LoggerUtil
+from utils.RunUtil import RunUtil
 
 
 def _open_site():
     webbrowser.open('https://gitee.com/lingkai5wu/AutoMuteBG')
 
 
+@singleton
 class StrayUtil:
-    def __init__(self, run_util, stray_setup_msg, logger):
+    @inject
+    def __init__(self, run_util: RunUtil, config_util: ConfigUtil,
+                 logger_util: LoggerUtil, event: threading.Event):
         self.run_util = run_util
-        self.stray_setup_msg = stray_setup_msg
-        self.logger = logger
-        self.event = None
+        self.stray_setup_msg = config_util.config["setting"]["stray_setup_msg"]
+        self.logger = logger_util.logger
+        self.event = event
 
         name = "后台静音"
         menu = pystray.Menu(
@@ -34,7 +39,7 @@ class StrayUtil:
 
         self.icon = pystray.Icon(name, icon, name, menu)
 
-    def run_detached(self, event):
+    def run_detached(self):
         def on_icon_ready(icon):
             icon.visible = True
             if self.stray_setup_msg:
@@ -42,7 +47,6 @@ class StrayUtil:
             threading.current_thread().setName("StrayRunCallbackThread")
             self.logger.info("Stray is running.")
 
-        self.event = event
         self.logger.info("Starting stray.")
         threading.Thread(target=self.icon.run, args=(on_icon_ready,), name="StrayThread").start()
 
