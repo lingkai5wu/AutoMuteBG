@@ -2,11 +2,17 @@ import os
 import tempfile
 
 import psutil
+from injector import singleton, inject
+
+from utils.LoggerUtil import LoggerUtil
 
 
+@singleton
 class PIDLockUtil:
-    def __init__(self, logger):
-        self.logger = logger
+    @inject
+    def __init__(self, logger_util: LoggerUtil):
+        self.logger = logger_util.logger
+
         self.lockfile = os.path.join(tempfile.gettempdir(), "run.lock")
 
     def is_locked(self):

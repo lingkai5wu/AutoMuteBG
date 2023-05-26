@@ -5,61 +5,61 @@ import webbrowser
 import pkg_resources
 import pystray
 from PIL import Image
+from injector import singleton, inject
 
-from utils.AudioUtil import save_process_name_to_txt
+from utils.AudioUtil import get_all_audio_sessions
 from utils.ConfigUtil import ConfigUtil
-from utils.LoggerUtil import get_log_dir
+from utils.LoggerUtil import LoggerUtil
 
 
 def _open_site():
     webbrowser.open('https://gitee.com/lingkai5wu/AutoMuteBG')
 
 
+@singleton
 class StrayUtil:
-    def __init__(self, run_util, stray_setup_msg, logger):
-        self.run_util = run_util
-        self.stray_setup_msg = stray_setup_msg
-        self.logger = logger
-        self.event = None
+    @inject
+    def __init__(self, config_util: ConfigUtil, logger_util: LoggerUtil, event: threading.Event):
+        self.setup_msg = config_util.config["setting"]["setup_msg"]
+        self.logger = logger_util.logger
+        self.event = event
 
         name = "后台静音"
         menu = pystray.Menu(
             pystray.MenuItem("开源地址", _open_site),
-            pystray.MenuItem("日志文件", self._open_log_folder),
-            pystray.MenuItem("查看进程", save_process_name_to_txt),
-            pystray.MenuItem("重新加载", self._reload),
+            pystray.MenuItem("进程列表", self._save_process_list_to_txt),
             pystray.MenuItem("退出", self.exit_app)
         )
         icon = Image.open(pkg_resources.resource_filename(__name__, "../resource/mute.ico"))
 
         self.icon = pystray.Icon(name, icon, name, menu)
 
-    def run_detached(self, event):
+    def run_detached(self):
         def on_icon_ready(icon):
             icon.visible = True
-            if self.stray_setup_msg:
-                icon.notify("启动成功")
+            if self.setup_msg:
+                icon.notify("程序启动成功，在系统托盘右键菜单中退出")
             threading.current_thread().setName("StrayRunCallbackThread")
             self.logger.info("Stray is running.")
 
-        self.event = event
         self.logger.info("Starting stray.")
         threading.Thread(target=self.icon.run, args=(on_icon_ready,), name="StrayThread").start()
 
-    def _open_log_folder(self):
-        log_path = get_log_dir()
-        try:
-            os.startfile(log_path)
-        except FileNotFoundError:
-            self.icon.notify("请检查配置文件中的 setting.max_log_files", "日志文件夹不存在")
-
-    def _reload(self):
-        config_util = ConfigUtil()
-        self.run_util.start_audio_control_threads(config_util)
-        self.icon.notify("重新加载成功")
-        self.logger.info("Reloaded successfully.")
+    def _save_process_list_to_txt(self):
+        filename = "process_name.txt"
+        sessions = get_all_audio_sessions()
+        with open(filename, 'w', encoding="utf-8") as file:
+            if sessions:
+                file.write("当前在音量合成器中注册的进程：\n")
+            else:
+                file.write("当前在音量合成器中没有进程，请先启动任意进程并播放声音。")
+            for session in sessions:
+                process_name = session.Process.name()
+                file.write(f"{process_name}\n")
+        self.logger.info(f"Process list saved to {filename}.")
+        os.startfile(filename)
 
     def exit_app(self):
-        self.logger.info("Exiting StrayUtil.")
-        self.icon.stop()
+        self.logger.info("Exiting by StrayUtil.")
         self.event.set()
+        self.icon.stop()

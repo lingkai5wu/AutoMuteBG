@@ -3,9 +3,14 @@ import shutil
 
 import pkg_resources
 import yaml
+from injector import singleton, inject
 
 
+@singleton
 class ConfigUtil:
+    config = None
+
+    @inject
     def __init__(self):
         self.config_file = "config.yaml"
         self.default_config_path = pkg_resources.resource_filename(__name__, "../resource/default_config.yaml")

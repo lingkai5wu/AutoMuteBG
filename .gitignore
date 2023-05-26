@@ -6,3 +6,4 @@
 /backup_config.yaml
 *.exe.spec
 /logs/
+/process_name.txt
