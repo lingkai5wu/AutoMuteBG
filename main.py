@@ -1,18 +1,16 @@
 import sys
 import threading
-import time
 
 import pywintypes
 import win32api
 import win32con
 from injector import Injector, singleton
 
-from utils.ConfigUtil import ConfigUtil
 from utils.LoggerUtil import LoggerUtil
 from utils.PIDLockUtil import PIDLockUtil
-from utils.RunUtil import RunUtil
 from utils.ShutdownUtil import ShutdownUtil
 from utils.StrayUtil import StrayUtil
+from utils.ThreadUtil import ThreadUtil
 
 
 def configure(binder):
@@ -34,27 +32,15 @@ def main():
     stray_util = injector.get(StrayUtil)
     stray_util.run_detached()
 
-    run_util = injector.get(RunUtil)
-    run_util.start_audio_control_threads()
+    thread_util = injector.get(ThreadUtil)
+    threading.Thread(
+        target=thread_util.background_scanner,
+        name="BGScannerThread",
+        daemon=True
+    ).start()
 
-    event = injector.get(threading.Event)
-    config = injector.get(ConfigUtil).config
-    # 这部分会阻塞主进程
-    if config["setting"]["bg_run"]:
-        if config["setting"]["bg_scan_interval"] is not None:
-            run_util.start_background_scanner_thread()
-            shutdown_util = injector.get(ShutdownUtil)
-            shutdown_util.loop()
-        else:
-            event.wait()
-    else:
-        if threading.active_count() < 2:
-            logger.info("Target process not found.")
-            win32api.MessageBox(0, "请先启动目标进程", "进程未找到", win32con.MB_ICONWARNING)
-        while threading.active_count() > 1:
-            time.sleep(1)
-        else:
-            logger.info("Program exits due to the exit of all target processes.")
+    shutdown_util = injector.get(ShutdownUtil)
+    shutdown_util.loop()
 
 
 if __name__ == '__main__':
@@ -68,5 +54,6 @@ if __name__ == '__main__':
 
     lock_util.remove_lock()
 
+# 打包用
 print(pywintypes)
 # pyinstaller -Fw --add-data "resource/;resource/" -i "resource/mute.ico" -n background_muter.v0.2.0.exe main.py

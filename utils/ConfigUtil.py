@@ -8,6 +8,8 @@ from injector import singleton, inject
 
 @singleton
 class ConfigUtil:
+    config = None
+
     @inject
     def __init__(self):
         self.config_file = "config.yaml"
@@ -16,8 +18,6 @@ class ConfigUtil:
         self.default_config = None
 
         self._read()
-
-    config = None
 
     def _read(self):
         if not os.path.exists(self.config_file):

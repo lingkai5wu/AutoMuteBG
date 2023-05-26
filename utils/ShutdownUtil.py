@@ -8,18 +8,16 @@ from injector import singleton, inject
 
 from utils.LoggerUtil import LoggerUtil
 from utils.PIDLockUtil import PIDLockUtil
-from utils.RunUtil import RunUtil
 from utils.StrayUtil import StrayUtil
 
 
 @singleton
 class ShutdownUtil:
     @inject
-    def __init__(self, stray_util: StrayUtil, lock_util: PIDLockUtil, run_util: RunUtil,
+    def __init__(self, stray_util: StrayUtil, lock_util: PIDLockUtil,
                  event: threading.Event, logger_util: LoggerUtil):
         self.stray_util = stray_util
         self.lock_util = lock_util
-        self.run_util = run_util
         self.event = event
         self.logger = logger_util.logger
 
