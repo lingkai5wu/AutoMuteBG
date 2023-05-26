@@ -3,3 +3,6 @@
 /dist/
 /utils/config.yaml
 /config.yaml
+/backup_config.yaml
+*.exe.spec
+/logs/

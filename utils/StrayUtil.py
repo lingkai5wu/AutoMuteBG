@@ -1,3 +1,4 @@
+import os
 import threading
 import webbrowser
 
@@ -6,34 +7,59 @@ import pystray
 from PIL import Image
 
 from utils.AudioUtil import save_process_name_to_txt
+from utils.ConfigUtil import ConfigUtil
+from utils.LoggerUtil import get_log_dir
 
 
-def on_icon_ready(icon):
-    icon.visible = True
-    icon.notify("游戏关闭后自动退出，或从任务栏退出", "后台静音启动成功")
-
-
-def open_site():
+def _open_site():
     webbrowser.open('https://gitee.com/lingkai5wu/AutoMuteBG')
 
 
 class StrayUtil:
-    event = None
+    def __init__(self, run_util, stray_setup_msg, logger):
+        self.run_util = run_util
+        self.stray_setup_msg = stray_setup_msg
+        self.logger = logger
+        self.event = None
 
-    def __init__(self):
         name = "后台静音"
         menu = pystray.Menu(
-            pystray.MenuItem("开源地址", open_site),
-            pystray.MenuItem("查看进程名", save_process_name_to_txt),
+            pystray.MenuItem("开源地址", _open_site),
+            pystray.MenuItem("日志文件", self._open_log_folder),
+            pystray.MenuItem("查看进程", save_process_name_to_txt),
+            pystray.MenuItem("重新加载", self._reload),
             pystray.MenuItem("退出", self.exit_app)
         )
         icon = Image.open(pkg_resources.resource_filename(__name__, "../resource/mute.ico"))
+
         self.icon = pystray.Icon(name, icon, name, menu)
 
-    def run_app(self, event: threading.Event):
+    def run_detached(self, event):
+        def on_icon_ready(icon):
+            icon.visible = True
+            if self.stray_setup_msg:
+                icon.notify("启动成功")
+            threading.current_thread().setName("StrayRunCallbackThread")
+            self.logger.info("Stray is running.")
+
         self.event = event
-        self.icon.run_detached(on_icon_ready)
+        self.logger.info("Starting stray.")
+        threading.Thread(target=self.icon.run, args=(on_icon_ready,), name="StrayThread").start()
+
+    def _open_log_folder(self):
+        log_path = get_log_dir()
+        try:
+            os.startfile(log_path)
+        except FileNotFoundError:
+            self.icon.notify("请检查配置文件中的 setting.max_log_files", "日志文件夹不存在")
+
+    def _reload(self):
+        config_util = ConfigUtil()
+        self.run_util.start_audio_control_threads(config_util)
+        self.icon.notify("重新加载成功")
+        self.logger.info("Reloaded successfully.")
 
     def exit_app(self):
+        self.logger.info("Exiting StrayUtil.")
         self.icon.stop()
         self.event.set()

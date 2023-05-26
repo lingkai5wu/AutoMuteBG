@@ -1,3 +1,9 @@
+setting:
+  bg_run: true
+  bg_scan_interval: 5
+  max_log_files: 10
+  stray_setup_msg: true
+
 default:
   loop_interval: 0.2
   fg_volume: 1

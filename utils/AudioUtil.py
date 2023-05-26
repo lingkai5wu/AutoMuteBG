@@ -1,5 +1,4 @@
 import os
-import sys
 import threading
 import time
 
@@ -27,26 +26,27 @@ def save_process_name_to_txt():
 
 # 两个缓动公式
 # Source: https://blog.csdn.net/songche123/article/details/102520760
-def ease_in_cubic(t, b, c, d):
+def _ease_in_cubic(t, b, c, d):
     t /= d
     return c * t * t * t + b
 
 
-def ease_out_cubic(t, b, c, d):
+def _ease_out_cubic(t, b, c, d):
     t = t / d - 1
     return c * (t * t * t + 1) + b
 
 
 class AudioUtil:
-
-    def __init__(self, session: AudioSession, config_util: ConfigUtil):
+    def __init__(self, session: AudioSession, config_util: ConfigUtil, event, logger):
         self.last_target_volume = None
         self.last_volume = None
         self.session = session
         self.process_util = ProcessUtil(session.Process)
         self.config = config_util.get_by_process(session.Process.name())
+        self.event = event
         self.easing_thread = None
-        self.easing_event = threading.Event()
+        self.stop_easing_thread = False
+        self.logger = logger
 
         self._check_fg_volume()
 
@@ -56,18 +56,19 @@ class AudioUtil:
             # 意外退出的情况
             if self.config["fg_volume"] == self.config["bg_volume"]:
                 self.config["fg_volume"] = 1
+            self.logger.info(f"Change fg_volume to {self.config['fg_volume']}.")
 
     def set_volume(self, volume: float):
         def no_easing(cur_volume=volume):
             self.session.SimpleAudioVolume.SetMasterVolume(cur_volume, None)
             self.last_volume = cur_volume
 
-        def easing():
-            f = ease_in_cubic if self.last_volume < volume else ease_out_cubic
+        def easing(stop_easing_thread):
+            f = _ease_in_cubic if self.last_volume < volume else _ease_out_cubic
             c = volume - self.last_volume
             this_last_volume = self.last_volume
             for i in range(self.config["easing"]["steps"]):
-                if self.easing_event.isSet():
+                if stop_easing_thread():
                     break
                 cur_volume = f(i + 1, this_last_volume, c, self.config["easing"]["steps"])
                 # print("sep:{:}, {:.2f} -> {:.2f}".format(i, self.last_volume, cur_volume))
@@ -76,9 +77,9 @@ class AudioUtil:
 
         def stop_easing():
             if self.easing_thread is not None and self.easing_thread.is_alive():
-                self.easing_event.set()
+                self.stop_easing_thread = True
                 self.easing_thread.join()
-                self.easing_event.clear()
+                self.stop_easing_thread = False
 
         if self.last_target_volume != volume:
             self.last_target_volume = volume
@@ -86,18 +87,23 @@ class AudioUtil:
                 no_easing()
             else:
                 stop_easing()
-                self.easing_thread = threading.Thread(target=easing)
+                self.easing_thread = threading.Thread(
+                    target=easing,
+                    args=(lambda: self.stop_easing_thread,),
+                    name="EasingThread",
+                    daemon=True
+                )
                 self.easing_thread.start()
 
-    def main_loop(self, event: threading.Event):
-        if not self.process_util.hwnd_list:
-            sys.exit()
-        while not event.isSet() and self.process_util.is_running():
+    def loop(self):
+        self.logger.info("Starting loop.")
+        while not self.event.isSet() and self.process_util.is_running():
             if self.process_util.is_window_in_foreground():
                 self.set_volume(self.config["fg_volume"])
             else:
                 self.set_volume(self.config["bg_volume"])
             time.sleep(self.config["loop_interval"])
         else:
-            self.set_volume(self.config["fg_volume"])
-            self.easing_thread.join()
+            self.stop_easing_thread = True
+            self.session.SimpleAudioVolume.SetMasterVolume(self.config["fg_volume"], None)
+            self.logger.info("Exiting loop.")
