@@ -25,10 +25,10 @@ class ThreadUtil:
         sessions = get_all_audio_sessions()
         for session in sessions:
             process_name = session.Process.name()
-            if process_name in self.config_util.config["processes"] and process_name not in alive_process:
-                self.logger.info(f"Found target process: {process_name}")
+            if process_name in self.config_util.config["processes"] and str(session.ProcessId) not in alive_process:
+                self.logger.info(f"Found target process: {process_name} (PID: {session.ProcessId})")
                 audio_util = AudioUtil(session, self.config_util, self.event, self.logger)
-                thread = threading.Thread(target=audio_util.loop, name=process_name)
+                thread = threading.Thread(target=audio_util.loop, name=session.ProcessId)
                 thread.start()
 
     def background_scanner(self):
