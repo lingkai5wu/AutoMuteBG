@@ -1,18 +1,11 @@
 import threading
 import time
 
-from pycaw.utils import AudioSession, AudioUtilities
+from pycaw.utils import AudioSession
 
 from utils.ConfigUtil import ConfigUtil
 from utils.LoggerUtil import LoggerUtil
 from utils.ProcessUtil import ProcessUtil
-
-
-def get_all_audio_sessions():
-    sessions = AudioUtilities.GetAllSessions()
-    res = [session for session in sessions if session.Process is not None]
-    return res
-
 
 # 两个缓动公式
 # Source: https://blog.csdn.net/songche123/article/details/102520760
