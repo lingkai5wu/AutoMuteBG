@@ -1,6 +1,9 @@
 import sys
 import threading
-
+'''
+import psutil
+import os
+'''
 import pywintypes
 import win32api
 import win32con
@@ -20,9 +23,25 @@ def configure(binder):
 def check_lock():
     cur_lock_util = injector.get(PIDLockUtil)
     if cur_lock_util.is_locked():
-        logger.info("Application is already running. Exiting.")
-        win32api.MessageBox(0, "请不要重复启动", "后台静音正在运行", win32con.MB_ICONWARNING)
-        sys.exit(1)
+        logger.info("Application is already running.")
+        # response = win32api.MessageBox(0, "检测到应用程序已在运行。是否强制启动并退出其他实例？", "后台静音正在运行", win32con.MB_ICONWARNING | win32con.MB_YESNO)
+        response = win32api.MessageBox(0, "检测到锁定文件，是否仍然启动（多个进程可能导致问题）？", "后台静音正在运行", win32con.MB_ICONWARNING | win32con.MB_YESNO)
+        if response == win32con.IDYES:
+            logger.info("User chose to force start. Exiting other instance.")
+            cur_lock_util.remove_lock()
+            
+            ''' 直接杀之前记录的pid可能会杀错，所以先注释掉
+            # 遍历进程，中断除自己以外的同名进程
+            current_process_id = os.getpid()  # 获取当前进程ID
+            for proc in psutil.process_iter(attrs=['pid', 'name']):
+                # 检查进程名称是否为background_muter，且进程ID不是当前进程ID
+                if proc.info['name'] == 'background_muter.exe' and proc.info['pid'] != current_process_id:
+                    proc.terminate()  # 终止该进程
+            '''
+            cur_lock_util.create_lock()
+        else:
+            logger.info("User chose not to force start. Exiting.")
+            sys.exit(1)
     else:
         cur_lock_util.create_lock()
     return cur_lock_util
@@ -56,4 +75,4 @@ if __name__ == '__main__':
 
 # 打包用
 print(pywintypes)
-# pyinstaller -Fw --add-data "resource/;resource/" -i "resource/mute.ico" -n background_muter.v0.2.0.exe main.py
+# pyinstaller -Fw --add-data "resource/;resource/" -i "resource/mute.ico" -n background_muter.exe main.py

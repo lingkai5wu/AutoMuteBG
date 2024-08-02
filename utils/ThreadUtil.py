@@ -4,7 +4,8 @@ import time
 from comtypes import CoInitialize
 from injector import Injector, singleton, inject
 
-from utils.AudioUtil import get_all_audio_sessions, AudioUtil
+from utils.GetProcessUtil import get_all_audio_sessions
+from utils.AudioUtil import AudioUtil
 from utils.ConfigUtil import ConfigUtil
 from utils.LoggerUtil import LoggerUtil
 
