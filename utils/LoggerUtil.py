@@ -55,8 +55,14 @@ class LoggerUtil:
         return logger
 
     def _delete_old_log_files(self):
+        if not os.path.exists(self.log_dir):
+            return
+
         log_files = [f for f in os.listdir(self.log_dir) if f.endswith(".log")]
         log_files.sort()
+
+        if self.max_log_files == 0:
+            os.remove(self.log_dir)
 
         if len(log_files) > self.max_log_files:
             files_to_delete = log_files[:len(log_files) - self.max_log_files]

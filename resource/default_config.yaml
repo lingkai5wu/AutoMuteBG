@@ -1,6 +1,6 @@
 setting:
   bg_scan_interval: 1
-  max_log_files: 10
+  max_log_files: 0
   setup_msg: true
 
 default:
