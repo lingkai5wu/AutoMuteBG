@@ -7,6 +7,7 @@ from utils.ConfigUtil import ConfigUtil
 from utils.LoggerUtil import LoggerUtil
 from utils.ProcessUtil import ProcessUtil
 
+
 # 两个缓动公式
 # Source: https://blog.csdn.net/songche123/article/details/102520760
 def _ease_in_cubic(t, b, c, d):

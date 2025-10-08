@@ -8,8 +8,8 @@ import win32api
 from PIL import Image
 from injector import singleton, inject
 
-from utils.GetProcessUtil import get_all_audio_sessions, get_all_window_processes
 from utils.ConfigUtil import ConfigUtil
+from utils.GetProcessUtil import get_all_audio_sessions, get_all_window_processes
 from utils.LoggerUtil import LoggerUtil
 
 
@@ -24,7 +24,6 @@ class StrayUtil:
         self.setup_msg = config_util.config["setting"]["setup_msg"]
         self.logger = logger_util.logger
         self.event = event
-        
 
         name = "后台静音"
         menu = pystray.Menu(
@@ -36,11 +35,17 @@ class StrayUtil:
         icon = Image.open(pkg_resources.resource_filename(__name__, "../resource/mute.ico"))
 
         self.icon = pystray.Icon(name, icon, name, menu)
-    
-    def show_version_info(self):
-        version_info = "后台应用自动静音器\n让设定的进程在后台时自动静音，切换到前台恢复。\n版本: 0.2.2 Dev\n开源地址: github.com/lingkai5wu/AutoMuteBG"
-        win32api.MessageBox(0, version_info, "关于Auto Mute Background", 0x40) 
-    
+
+    @staticmethod
+    def show_version_info():
+        version_info = (
+            "后台应用自动静音器\n"
+            "让设定的进程在后台时自动静音，切换到前台恢复。\n"
+            "版本: 0.2.2 Dev\n"
+            "开源地址: github.com/lingkai5wu/AutoMuteBG"
+        )
+        win32api.MessageBox(0, version_info, "关于Auto Mute Background", 0x40)
+
     def run_detached(self):
         def on_icon_ready(icon):
             icon.visible = True

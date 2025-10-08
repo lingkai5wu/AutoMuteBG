@@ -1,12 +1,14 @@
+import psutil
 import win32gui
 import win32process
-import psutil
 from pycaw.utils import AudioUtilities
+
 
 def get_all_audio_sessions():
     sessions = AudioUtilities.GetAllSessions()
     res = [session for session in sessions if session.Process is not None]
     return res
+
 
 def get_all_window_processes():
     window_processes = []

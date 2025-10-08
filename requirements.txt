@@ -1,3 +1,8 @@
 injector
+psutil
 pycaw
+pyinstaller
 pystray
+pywin32
+pyyaml
+setuptools
